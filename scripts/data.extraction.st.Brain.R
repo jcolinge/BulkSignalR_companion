@@ -13,7 +13,7 @@ library(STexampleData)
 #########################################################################################
 
 # set up directory
-bench.dir <- "/yourDirectory/"
+bench.dir <- "./"
 
 spe <- Visium_humanDLPFC()
 
