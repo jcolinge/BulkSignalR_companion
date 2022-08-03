@@ -33,12 +33,12 @@ bsrdm <- learnParameters(bsrdm, quick=FALSE,
                          min.positive=2, 
                          verbose=TRUE)
 bsrdm
-# save(bsrdm,file="spatial2-bsrdm.rda")
+save(bsrdm,file="spatial2-bsrdm.rda")
 load("spatial2-bsrdm.rda")
 
 bsrinf <- initialInference(bsrdm, min.cor=-1)
 bsrinf
-# save(bsrinf,file="spatial2-bsrinf.rda")
+save(bsrinf,file="spatial2-bsrinf.rda")
 load("spatial2-bsrinf.rda")
 
 
