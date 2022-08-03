@@ -23,6 +23,6 @@ These files are needed to use SDC-application-st.R or
 with the code related to the ST section of the
 vignette providen inside [BulkSignalR package](https://github.com/jcolinge/BulkSignalR).  
 
-<u>Note1 :<u/> R version 4.2 was used to process the data.  
-<u>Note2 :<u/> By default, SDC-application-st.R works with the brain dataset.  
-To work with the Breast Cancer ST data, you need to change the file input accordingly.  
+*Note1: * R version 4.2 was used to process the data.  
+*Note2: * By default, SDC-application-st.R works with the brain dataset.  
+To work with the Breast Cancer ST dataset, you need to change the inputs accordingly.  
