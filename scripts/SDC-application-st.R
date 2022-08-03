@@ -8,7 +8,7 @@ registerDoMC(n.proc)
 
 
 # set up working directory
-bench.dir <- "/yourDirectory/"
+bench.dir <- "./"
 
 # load data =================================================
 

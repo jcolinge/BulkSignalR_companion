@@ -7,11 +7,10 @@ In this repository, you will find :
 Application of `BulkSignalR` with bulk RNASeq and Spatial Transcriptomics (ST).  
 
 - SDC-application.R : Use case for Bulk RNASeq.  
-- SDC-application-st.R :  Use case for ST.  
+- SDC-application-st.R :  Use case for ST using the Brain example.  
 
 For ST, you need to extract the raw data before.  
-Two datasets described in the manuscript are given as examples.    
-
+Two datasets described in the manuscript can be retrieved as follows.    
 - data.extraction.st.Brain.R  :
 - data.extraction.st.BreastCancer.R : 
 
@@ -22,4 +21,8 @@ They produce three files needed for ST analysis.
 
 These files are needed to use SDC-application-st.R or
 with the code related to the ST section of the
-vignette providen inside [BulkSignalR package](https://github.com/jcolinge/BulkSignalR).
+vignette providen inside [BulkSignalR package](https://github.com/jcolinge/BulkSignalR).  
+
+<u>Note1 :<u/> R version 4.2 was used to process the data.  
+<u>Note2 :<u/> By default, SDC-application-st.R works with the brain dataset.  
+To work with the Breast Cancer ST data, you need to change the file input accordingly.  
