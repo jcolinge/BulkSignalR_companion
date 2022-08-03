@@ -3,7 +3,7 @@ library(foreach)
 library(doMC)
 library(glue)
 
-n.proc <- 5
+n.proc <- 2
 registerDoMC(n.proc)
 
 

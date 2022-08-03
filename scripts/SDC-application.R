@@ -3,7 +3,7 @@ library(igraph)
 
 # activate parallel computing for faster model training [optional]
 library(doParallel)
-n.proc <- 5
+n.proc <- 2
 cl <- makeCluster(n.proc)
 registerDoParallel(cl)
 
