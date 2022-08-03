@@ -20,6 +20,6 @@ They produce three files needed for ST analysis.
 - X_label.export.tsv : Labeled spots
 - X_image.export.png (optional) : Tissue image
 
-They can be used with SDC-application-st.R or
+These files are needed to use SDC-application-st.R or
 with the code related to the ST section of the
 vignette providen inside [BulkSignalR package](https://github.com/jcolinge/BulkSignalR).
