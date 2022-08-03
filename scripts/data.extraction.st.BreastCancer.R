@@ -17,10 +17,10 @@ library(SpatialExperiment)
 download <- TRUE
 
 # set up directory
-bench.dir <- "/"
-dir <- "BreastVisiumNoH5"
-bench.dir <- "yourDirectory"
-outdir <- glue("{yourDirectory}/{dir}")
+bench.dir <- getwd()
+dir <- "BreastVisiumNoH5/"
+outdir <- glue("{bench.dir}/{dir}")
+
 
 # You might need to do that in bash before.
 # export HDF5_USE_FILE_LOCKING='FALSE'
@@ -144,7 +144,7 @@ seurat.object[['Slice1']] <- image
 # Extract Raster Image from Seurat Object
 img <- GetImage(seurat.object, mode = c("raster")) 
 
-png(glue("{bench.dir}/spatial/BreastCancer_image.export.png"))
+png(glue("{bench.dir}/BreastCancer_image.export.png"))
 plot(img)
 dev.off()
 
@@ -184,6 +184,6 @@ colnames(dataframe) <- tisspos[tisspos$in_tissue==1,]$idSpatial
 
 dataframe <- dataframe[rowSums(dataframe)>0, ] 
 
-write.table(spot ,file = glue("{bench.dir}/spatial/BreastCancer_label.export.tsv"), col.names=TRUE,row.names =  FALSE, quote = FALSE,sep = "\t")
-write.table(dataframe ,file = glue("{bench.dir}/spatial/BreastCancer_count.export.tsv"), col.names=NA,row.names =  TRUE, quote = FALSE,sep = "\t")
+write.table(spot ,file = glue("{bench.dir}/BreastCancer_label.export.tsv"), col.names=TRUE,row.names =  FALSE, quote = FALSE,sep = "\t")
+write.table(dataframe ,file = glue("{bench.dir}/BreastCancer_count.export.tsv"), col.names=NA,row.names =  TRUE, quote = FALSE,sep = "\t")
 
