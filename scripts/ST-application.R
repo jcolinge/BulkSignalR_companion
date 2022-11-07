@@ -25,7 +25,8 @@ table(areas$label)
 # prepare data =================================================
 
 bsrdm <- prepareDataset(counts,symbol.col=1, 
-                              min.count=1, 
+                              min.count=1,
+                              prop=0.01,
                               method="TC")
 
 bsrdm <- learnParameters(bsrdm, quick=FALSE,
@@ -47,22 +48,43 @@ load("spatial2-bsrinf.rda")
 bsrinf.red <- reduceToBestPathway(bsrinf)
 pairs.red <- LRinter(bsrinf.red)
 thres <- 0.01
-sum(pairs.red$qval<thres)
+min.corr <- 0.01
+pairs.red <- pairs.red[pairs.red$qval < thres & pairs.red$LR.corr > min.corr,]
 s.red <- getLRGeneSignatures(bsrinf.red, qval.thres=thres)
 scores.red <- scoreLRGeneSignatures(bsrdm,s.red)
 
 
 # plot one specific interaction
-rownames(scores.red) <- gsub("->","/",rownames(scores.red))
-inter <- gsub("\\}","",gsub("\\{","",rownames(scores.red)[20]))
-spatialPlot(scores.red[20,], areas, inter, ref.plot=TRUE, dot.size=1)
+inter <- "{CALM1} / {GRM5}" # we have to follow the syntax with {} to be compatible with reduction operations
+spatialPlot(scores.red[inter,], areas, inter, ref.plot=TRUE, dot.size=1)
+
+# dissect one interaction
+separatedLRPlot(scores.red, "CALM1", "GRM5", ncounts(bsrdm), areas)
 
 # generate visual index
-spatialIndexPlot(scores.red, areas, "bigplot-BSR.pdf")
+spatialIndexPlot(scores.red, areas, "bench2-plots/bigplot-BSR.pdf")
 
-# statistical association with tissue areas
+# statistical association with tissue areas based on a statistical test (Kruskal-Wallis by default)
 assoc.bsr <- spatialAssociation(scores.red, areas)
 spatialAssociationPlot(assoc.bsr)
 
-# 2D-projection of score spatial distribution patterns
-spatialDiversityPlot(scores.red, assoc.bsr, with.names=TRUE)
+# statistical association with tissue areas based on correlations
+assoc.bsr.corr <- spatialAssociation(scores.red, areas, test="Spearman")
+spatialAssociationPlot(assoc.bsr.corr)
+
+# 2D-projection of score spatial distribution patterns (compatible with all associations)
+spatialDiversityPlot(scores.red, assoc.bsr.corr, with.names=TRUE)
+spatialDiversityPlot(scores.red, assoc.bsr.corr, with.names=TRUE, score.based=TRUE)
+spatialDiversityPlot(scores.red, assoc.bsr.corr, with.names=TRUE, proj="tSNE", score.based=TRUE)
+
+# use of spatial plot for other quantities
+mtc <- grep("^MT",rownames(ncounts(bsrdm)))
+csc <- colSums(ncounts(bsrdm)[mtc,])/colSums(ncounts(bsrdm))
+spatialPlot(csc, areas, "MT contents", ref.plot=TRUE, dot.size=1)
+
+# use of associations for genes instead of interactions
+sel.genes <- unique(c(pairs.red[pairs.red$pw.name=="Protein-protein interactions at synapses", "L"],
+                      pairs.red[pairs.red$pw.name=="Protein-protein interactions at synapses", "R"],
+                      pairs.red$L[grep("^COL", pairs.red$L)]))
+assoc.g <- spatialAssociation(ncounts(bsrdm)[sel.genes,], areas, test="Spearman")
+spatialAssociationPlot(assoc.g)
