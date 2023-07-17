@@ -65,8 +65,6 @@ simpleHeatmap(scores.red, file="SDC-LR-heatmap.pdf", width=6,
 # correlate with the immune microenvironment
 data(immune.signatures, package="BulkSignalR")
 imm.scores <- scoreSignatures(bsrdm, immune.signatures)
-dualHeatmap(scores.red, imm.scores, width=6, height=9,
-            file="SDC-LR-dualheatmap.pdf", pointsize=4, vert.p=0.85)
 
 # networks ----------------------------------------------------------
 
@@ -127,14 +125,14 @@ plot(gLRintra.res,
 
 # re-scoring ---------------------------------------------------------
 
-# obtain inference significance considering the absolute values
-# of Spearman correlations to rank them
+# obtain inference significance considering less deep receptor
+# downstream signaling
 
-bsrinf.abs <- rescoreInference(bsrinf, param=param(bsrdm), signed=FALSE)
+bsrinf.less <- rescoreInference(bsrinf, param=param(bsrdm), rank.p=0.75)
 head(LRinter(bsrinf), n=10)
-head(LRinter(bsrinf.abs), n=10)
-plot(x=LRinter(bsrinf)$qval, y=LRinter(bsrinf.abs)$qval, log="xy", pch=20)
-abline(a=0, b=1, col="red")
+head(LRinter(bsrinf.less), n=10)
+plot(x=LRinter(bsrinf)$qval, y=LRinter(bsrinf.less)$qval, log="xy", pch=20)
+abline(a=0, b=1)
 
 # end ---------------------------------------------------------------
 

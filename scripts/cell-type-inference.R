@@ -15,7 +15,7 @@ bsrinf <- initialInference(bsrdm)
 # Common TME cell type signatures
 data(immune.signatures, package="BulkSignalR")
 unique(immune.signatures$signature)
-immune.signatures <- immune.signatures[immune.signatures$signature %in% c("B cells","Dentritic cells","Macrophages",
+immune.signatures <- immune.signatures[immune.signatures$signature %in% c("B cells","Dendritic cells","Macrophages",
                                                                           "NK cells","T cells","T regulatory cells"),]
 data("tme.signatures", package="BulkSignalR")
 signatures <- rbind(immune.signatures,tme.signatures[tme.signatures$signature%in%c("Endothelial cells","Fibroblasts"),])
