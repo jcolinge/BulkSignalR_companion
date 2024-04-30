@@ -3,7 +3,7 @@ library(igraph)
 
 # activate parallel computing for faster model training [optional]
 library(doParallel)
-n.proc <- 2
+n.proc <- 6
 cl <- makeCluster(n.proc)
 registerDoParallel(cl)
 
@@ -133,6 +133,13 @@ head(LRinter(bsrinf), n=10)
 head(LRinter(bsrinf.less), n=10)
 plot(x=LRinter(bsrinf)$qval, y=LRinter(bsrinf.less)$qval, log="xy", pch=20)
 abline(a=0, b=1)
+
+# using the full network instead of restricting to observed genes ------
+
+inter <- LRinter(bsrinf)
+
+bsrinf.full <- initialInference(bsrdm, use.full.network=TRUE)
+inter.full <- LRinter(bsrinf.full)
 
 # end ---------------------------------------------------------------
 
