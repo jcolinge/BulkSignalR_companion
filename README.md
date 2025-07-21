@@ -1,6 +1,5 @@
 # BulkSignalR_companion
 
-\
 
 ## Preamble
 
@@ -13,7 +12,6 @@ In case you need or want to refer to the companion repository as it was
 for `BulkSignalR` original version, we created a branch named
 **beforeBioconducor** that contains the original, now frozen companion.
 
-\
 
 ## Contents
 
