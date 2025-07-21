@@ -4,9 +4,9 @@
 # or tumor samples that are immune-rich and another one that contains
 # immune-poor samples.
 #
-# This is just an example. The clustering and # differential gene expression
-# analyses are the responsibility of the user, and would most likely relie
-# on classical, existing R packages.
+# This is just an example. The clustering and the differential gene expression
+# analyses are the responsibility of the user, and would most likely rely
+# on classical, existing R packages or statistical tests.
 
 
 library(BulkSignalR)
@@ -21,7 +21,7 @@ registerDoParallel(cl)
 # prepare data
 data(sdc,package="BulkSignalR")
 normal <- grep("^N", names(sdc))
-bsrdm <- prepareDataset(sdc[, -normal])
+bsrdm <- BSRDataModel(sdc[, -normal])
 
 # ===============================================================
 # Sample clustering
@@ -31,7 +31,7 @@ bsrdm <- prepareDataset(sdc[, -normal])
 data(immune.signatures, package="BulkSignalR")
 unique(immune.signatures$signature)
 imm.scores <- scoreSignatures(bsrdm, immune.signatures)
-# simpleHeatmap(imm.scores)
+simpleHeatmap(imm.scores)
 d <- dist(t(imm.scores))
 h <- hclust(d)
 plot(h)
@@ -80,14 +80,19 @@ comparison <- "high - low"
 lrt <- glmLRT(fit.dge, contrast=cm[,comparison])
 sel.r <- topTags(lrt, n=nrow(dge$counts))
 edger.stats <- sel.r$table
-names(edger.stats)[5] <- "pval" # this name is imposed by our library
+
+# extract the required data from edgeR analysis and the normalized counts
+stats <- data.frame(pval=edger.stats$PValue,
+                    logFC=edger.stats$logFC,
+                    expr=rowMeans(ncounts(bsrdm)[,colA]))
+rownames(stats) <- edger.stats$genes
 
 # ===========================================================================
 
 
 # create the BSRDataModelComp and BSRClusterComp objects for this comparison
-bsrdm.comp <- as.BSRDataModelComp(bsrdm)
-bsrcc <- defineClusterComp(bsrdm.comp, colA, colB, edger.stats)
+bsrdm.comp <- as(bsrdm, "BSRDataModelComp")
+bsrcc <- BSRClusterComp(bsrdm.comp, colA, colB, stats)
 bsrcc
 bsrdm.comp <- addClusterComp(bsrdm.comp, bsrcc, "high.versus.low.immune")
 bsrdm.comp
@@ -100,7 +105,7 @@ bsrdm.comp <- removeClusterComp(bsrdm.comp, "again")
 bsrdm.comp
 
 # score ligand-receptor interactions
-bsrinf.comp <- initialInference(bsrdm.comp, "high.versus.low.immune")
+bsrinf.comp <- BSRInferenceComp(bsrdm.comp, "high.versus.low.immune")
 bsrinf.comp
 
 # save(bsrdm.comp,file="bsrdm-comp.rda")
@@ -142,11 +147,18 @@ head(LRinter(bsrinf.redPP))
 # receptor downstream pathway scores
 sum(LRinter(bsrinf.redPP)$qval < 0.01) # number of significant interactions
 sum(LRinter(bsrinf.red)$qval < 1e-6)
-bsrsig.red <- getLRGeneSignatures(bsrinf.red, qval.thres=1e-6)
+bsrsig.red <- BSRSignatureComp(bsrinf.red, qval.thres=1e-6)
 bsrsig.red
 scores.red <- scoreLRGeneSignatures(bsrdm.comp, bsrsig.red, name.by.pathway=TRUE, rownames.LRP=TRUE)
-simpleHeatmap(scores.red, file="SDC-LR-heatmap.pdf", width=6,
-              height=8, pointsize=4)
+
+# on the screen
+simpleHeatmap(scores.red, width=6, height=8, pointsize=4)
+
+# in a PDF file
+pdf(file="SDC-diff-LR-heatmap.pdf", width=6, height=8, pointsize=4,
+    useDingbats=FALSE)
+simpleHeatmap(scores.red, width=6, height=12, pointsize=4)
+dev.off()
 
 
 # networks ----------------------------------------------------------
@@ -155,7 +167,7 @@ simpleHeatmap(scores.red, file="SDC-LR-heatmap.pdf", width=6,
 # for Cytoscape or similar tools
 gLR <- getLRNetwork(bsrinf.red, qval.thres=1e-8)
 gLR
-write.graph(gLR,file="SDC-LR-network.graphml",format="graphml")
+write_graph(gLR,file="SDC-LR-network.graphml",format="graphml")
 
 # play around with igraph functions as an alternative to Cytoscape
 plot(gLR)
@@ -165,7 +177,7 @@ plot(gLR,
      vertex.label.family="Helvetica",
      vertex.label.cex=0.75)
 # community detection
-u.gLR <- as.undirected(gLR) # most algorithms work for undirected graphs only
+u.gLR <- as_undirected(gLR) # most algorithms work for undirected graphs only
 comm <- cluster_edge_betweenness(u.gLR)
 plot(comm,u.gLR,
      vertex.label.color="black",
@@ -182,7 +194,7 @@ plot(cb,u.gLR,
 # generate a ligand-receptor network complemented with intra-cellular,
 # receptor downstream pathways [computations are a bit longer here]
 gLRintra <- getLRIntracellNetwork(bsrinf.red, qval.thres=1e-8)
-write.graph(gLRintra, file="SDC-LR-intracellular-network.graphml",
+write_graph(gLRintra, file="SDC-LR-intracellular-network.graphml",
             format="graphml")
 lay <- layout_with_kk(gLRintra)
 plot(gLRintra,
@@ -227,7 +239,7 @@ bsrinf.less <- rescoreInference(bsrinf.comp, param=param(bsrdm.comp), rank.p=0.7
 head(LRinter(bsrinf.comp), n=10)
 head(LRinter(bsrinf.less), n=10)
 plot(x=LRinter(bsrinf.comp)$qval, y=LRinter(bsrinf.less)$qval, log="xy", pch=20)
-abline(a=0, b=1)
+abline(a=0, b=1, col="orange")
 
 # end ---------------------------------------------------------------
 

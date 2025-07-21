@@ -1,16 +1,17 @@
 library(BulkSignalR)
 library(foreach)
-library(doMC)
 library(igraph)
+library(doParallel)
 
 n.proc <- 4
-registerDoMC(n.proc)
+cl <- makeCluster(n.proc)
+registerDoParallel(cl)
 
 # SDC data
 data(sdc,package='BulkSignalR')
-bsrdm <- prepareDataset(counts = sdc)
+bsrdm <- BSRDataModel(sdc)
 bsrdm <- learnParameters(bsrdm)
-bsrinf <- initialInference(bsrdm)
+bsrinf <- BSRInference(bsrdm)
 
 # Common TME cell type signatures
 data(immune.signatures, package="BulkSignalR")
@@ -60,7 +61,7 @@ par(op)
 # random selections based on random gene sets
 qval.thres <- 1e-3
 inter <- LRinter(bsrinf)
-tg <- tGenes(bsrinf)
+tg <- tgGenes(bsrinf)
 tcor <- tgCorr(bsrinf)
 good <- inter$qval <= qval.thres
 inter <- inter[good,]
@@ -68,7 +69,7 @@ tg <- tg[good]
 tcor <- tcor[good]
 all.targets <- unique(unlist(tg))
 r.cf <- list()
-for (k in 1:100){ # should 1000 or more
+for (k in 1:100){ # should be 1000 or more
   r.gs <- sample(all.targets,length(intersect(gs,all.targets)))
   r.triggers <- relateToGeneSet(bsrinf, r.gs, qval.thres=qval.thres)
   r.triggers <- r.triggers[r.triggers$n.genes>1,]

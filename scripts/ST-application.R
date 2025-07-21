@@ -1,11 +1,16 @@
 library(BulkSignalR)
 library(foreach)
-library(doMC)
 library(glue)
+library(doParallel)
 
-n.proc <- 2
-registerDoMC(n.proc)
 
+###########################################################################
+# execute the data.extraction.st.brain.R script before executing this one #
+###########################################################################
+
+n.proc <- 6
+cl <- makeCluster(n.proc)
+registerDoParallel(cl)
 
 # set up working directory
 bench.dir <- "./"
@@ -24,7 +29,7 @@ table(areas$label)
 
 # prepare data =================================================
 
-bsrdm <- prepareDataset(counts,symbol.col=1, 
+bsrdm <- BSRDataModel(counts,symbol.col=1, 
                               min.count=1,
                               prop=0.01,
                               method="TC")
@@ -37,7 +42,7 @@ bsrdm
 save(bsrdm,file="spatial2-bsrdm.rda")
 load("spatial2-bsrdm.rda")
 
-bsrinf <- initialInference(bsrdm, min.cor=-1)
+bsrinf <- BSRInference(bsrdm, min.cor=-1)
 bsrinf
 save(bsrinf,file="spatial2-bsrinf.rda")
 load("spatial2-bsrinf.rda")
@@ -50,7 +55,7 @@ pairs.red <- LRinter(bsrinf.red)
 thres <- 0.01
 min.corr <- 0.01
 pairs.red <- pairs.red[pairs.red$qval < thres & pairs.red$LR.corr > min.corr,]
-s.red <- getLRGeneSignatures(bsrinf.red, qval.thres=thres)
+s.red <- BSRSignature(bsrinf.red, qval.thres=thres)
 scores.red <- scoreLRGeneSignatures(bsrdm,s.red)
 
 
@@ -62,7 +67,7 @@ spatialPlot(scores.red[inter,], areas, inter, ref.plot=TRUE, dot.size=1)
 separatedLRPlot(scores.red, "CALM1", "GRM5", ncounts(bsrdm), areas)
 
 # generate visual index
-spatialIndexPlot(scores.red, areas, "bench2-plots/bigplot-BSR.pdf")
+spatialIndexPlot(scores.red, areas, "bigplot-BSR.pdf")
 
 # statistical association with tissue areas based on a statistical test (Kruskal-Wallis by default)
 assoc.bsr <- spatialAssociation(scores.red, areas)

@@ -10,12 +10,12 @@ registerDoParallel(cl)
 # prepare data and train the statistical model
 data(sdc,package="BulkSignalR")
 normal <- grep("^N", names(sdc))
-bsrdm <- prepareDataset(sdc[, -normal])
+bsrdm <- BSRDataModel(sdc[, -normal])
 bsrdm <- learnParameters(bsrdm, quick=FALSE, plot.folder=".", verbose=TRUE)
 bsrdm
 
 # score ligand-receptor interactions
-bsrinf <- initialInference(bsrdm)
+bsrinf <- BSRInference(bsrdm)
 bsrinf
 
 # save(bsrdm,file="bsrdm.rda")
@@ -57,10 +57,17 @@ head(LRinter(bsrinf.redPP))
 # receptor downstream pathway scores
 sum(LRinter(bsrinf.redPP)$qval < 0.01) # number of significant interactions
 sum(LRinter(bsrinf.red)$qval < 1e-8)
-bsrsig.red <- getLRGeneSignatures(bsrinf.red, qval.thres=1e-8)
-scores.red <- scoreLRGeneSignatures(bsrdm, bsrsig.red, name.by.pathway=TRUE)
-simpleHeatmap(scores.red, file="SDC-LR-heatmap.pdf", width=6,
-              height=8, pointsize=4)
+bsrsig.red <- BSRSignature(bsrinf.red, qval.thres=1e-8)
+scores.red <- scoreLRGeneSignatures(bsrdm, bsrsig.red)
+
+# on the screen
+simpleHeatmap(scores.red, width=6, height=8, pointsize=4)
+
+# in a PDF file
+pdf(file="SDC-LR-heatmap.pdf", width=6, height=12, pointsize=4,
+    useDingbats=FALSE)
+simpleHeatmap(scores.red, width=6, height=12, pointsize=4)
+dev.off()
 
 # correlate with the immune microenvironment
 data(immune.signatures, package="BulkSignalR")
@@ -72,7 +79,7 @@ imm.scores <- scoreSignatures(bsrdm, immune.signatures)
 # for Cytoscape or similar tools
 gLR <- getLRNetwork(bsrinf.red, qval.thres=1e-8)
 gLR
-write.graph(gLR,file="SDC-LR-network.graphml",format="graphml")
+write_graph(gLR,file="SDC-LR-network.graphml",format="graphml")
 
 # play around with igraph functions as an alternative to Cytoscape
 plot(gLR)
@@ -82,7 +89,7 @@ plot(gLR,
      vertex.label.family="Helvetica",
      vertex.label.cex=0.75)
 # community detection
-u.gLR <- as.undirected(gLR) # most algorithms work for undirected graphs only
+u.gLR <- as_undirected(gLR) # most algorithms work for undirected graphs only
 comm <- cluster_edge_betweenness(u.gLR)
 plot(comm,u.gLR,
      vertex.label.color="black",
@@ -128,17 +135,17 @@ plot(gLRintra.res,
 # obtain inference significance considering less deep receptor
 # downstream signaling
 
-bsrinf.less <- rescoreInference(bsrinf, param=param(bsrdm), rank.p=0.75)
+bsrinf.less <- rescoreInference(bsrinf, param=parameters(bsrdm), rank.p=0.75)
 head(LRinter(bsrinf), n=10)
 head(LRinter(bsrinf.less), n=10)
 plot(x=LRinter(bsrinf)$qval, y=LRinter(bsrinf.less)$qval, log="xy", pch=20)
-abline(a=0, b=1)
+abline(a=0, b=1, col="orange")
 
 # using the full network instead of restricting to observed genes ------
 
 inter <- LRinter(bsrinf)
 
-bsrinf.full <- initialInference(bsrdm, use.full.network=TRUE)
+bsrinf.full <- BSRInference(bsrdm, use.full.network=TRUE) # lengthy computation
 inter.full <- LRinter(bsrinf.full)
 
 # end ---------------------------------------------------------------
