@@ -16,7 +16,7 @@ for `BulkSignalR` original version, we created a branch named
 ## Contents
 
 In this companion repository, we show case applications of the `BulkSignalR`
-library to bulk RNA-seq and medium resolution 10x Genomics Visium:tm:
+library to bulk RNA-seq and medium resolution 10x Genomics Visium :tm:
 Spatial Transcriptomics (ST):
 
 - SDC-application.R : Use case for Bulk RNA-seq.
