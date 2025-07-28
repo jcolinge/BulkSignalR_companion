@@ -61,12 +61,12 @@ bsrsig.red <- BSRSignature(bsrinf.red, qval.thres=1e-8)
 scores.red <- scoreLRGeneSignatures(bsrdm, bsrsig.red)
 
 # on the screen
-simpleHeatmap(scores.red, width=6, height=8, pointsize=4)
+simpleHeatmap(scores.red, pointsize=4)
 
 # in a PDF file
 pdf(file="SDC-LR-heatmap.pdf", width=6, height=12, pointsize=4,
     useDingbats=FALSE)
-simpleHeatmap(scores.red, width=6, height=12, pointsize=4)
+simpleHeatmap(scores.red, pointsize=4)
 dev.off()
 
 # correlate with the immune microenvironment
