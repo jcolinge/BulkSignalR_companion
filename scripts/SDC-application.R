@@ -152,3 +152,4 @@ inter.full <- LRinter(bsrinf.full)
 
 # stop cluster if parallel computation was used [optional]
 stopCluster(cl)
+
