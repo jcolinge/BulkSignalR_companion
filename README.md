@@ -4,7 +4,7 @@
 ## Preamble
 
 We recently integrated `BulkSignalR` to Bioconductor, which required some
-small adjustment of the S4 classes design. The main branch of this
+small adjustments of the S4 classes design. The main branch of this
 companion repository has been adapted to the updated, Bioconductor
 version of our library.
 
