@@ -3,9 +3,13 @@ library(igraph)
 
 # activate parallel computing for faster model training [optional]
 library(doParallel)
-n.proc <- 6
+n.proc <- min(c(8, detectCores()-1))
 cl <- makeCluster(n.proc)
 registerDoParallel(cl)
+
+if (.Platform$OS.type=="windows")
+    windowsFonts("Arial" = windowsFont("Arial"))
+
 
 # prepare data and train the statistical model
 data(sdc,package="BulkSignalR")

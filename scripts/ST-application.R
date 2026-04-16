@@ -8,7 +8,7 @@ library(doParallel)
 # execute the data.extraction.st.brain.R script before executing this one #
 ###########################################################################
 
-n.proc <- 6
+n.proc <- min(c(8, detectCores()-1))
 cl <- makeCluster(n.proc)
 registerDoParallel(cl)
 
